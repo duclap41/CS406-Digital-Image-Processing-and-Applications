@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS406 - Lab03</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="flex min-h-screen bg-gray-100 font-sans antialiased">
+    <!-- Input Section-->
+    <div class="flex-grow container mx-auto mt-10 px-4 sm:px-0">
+        <div class="max-w-2/5 mx-auto bg-white p-6 rounded-lg shadow-md flex flex-col">
+
+            <!-- Introduction -->
+            <div class="text-center">
+                <h2 class="text-2xl font-semibold mb-4">Lab-03: Image Enhancing</h2>
+                <p class="text-gray-700">
+                    Tải lên một tấm ảnh, tích chọn tác vụ cần xử lý. Sau đó chọn 'Xử Lý' để nhận kết quả!
+                </p>
+            </div>
+            <br>
+
+            <!-- Upload -->
+            <div>
+                <div>
+                    <div class="flex justify-center">
+                        <h2 class="text-xl font-bold">Upload Image:</h2>
+                    </div>
+                </div>
+    
+                <div class="flex justify-center">
+                    {% if filename %}
+                        <img src="/static/uploads/{{filename}}" alt="Uploading Error" class="mt-2 w-1/3 h-auto rounded">
+                    {% else %}
+                        <div class="bg-gray-100 w-64 h-64 rounded-md flex justify-center">
+                            <img src="/static/image-icon.png" alt="Uploading Error" class="mt-2 rounded w-40 h-40">
+                        </div>
+                    {% endif %}
+                </div>
+    
+                <div class="mt-3 mb-10 flex justify-center">
+                    <form action="/upload/" method="post" enctype="multipart/form-data">
+                        <input type="file" name="file" accept="image/*" class="m-1" required>
+                        <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"> Upload Image </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Selection -->
+             <div>
+                <form id="enhance-form" action="/process_image/" method="post">
+                    <input type="hidden" name="filename" value="{{ filename }}">
+                    <div class="flex justify-between text-2xl">
+                        <label>
+                            <input type="checkbox" name="options" value="add_noise" checked>
+                            Add Noise
+                        </label>
+                        <label>
+                            <input type="checkbox" name="options" value="denoise" checked>
+                            Denoise
+                        </label>
+                        <label>
+                            <input type="checkbox" name="options" value="sharpen" checked>
+                            Sharpening
+                        </label>
+                        <label>
+                            <input type="checkbox" name="options" value="edge_detect" checked>
+                            Edge Detection
+                        </label>
+                    </div>
+                    <div class="flex justify-center mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">
+                        <button type="submit">Xử Lý</button>
+                    </div>
+                </form>
+             </div>
+
+            <!-- Processed Image Display -->
+             <!-- Add noise -->
+            {% if methods.0 == 1 %}
+            <section class="mt-10">
+                <h2 class="text-4xl mb-4 font-semibold">Add Noise</h2>
+                <div class="flex justify-center">
+                    <img src="/static/processed/add-noise/{{save_name}}.png" alt="Uploading Error" class="rounded w-1/2 h-auto">
+                </div>
+            </section>
+            {% endif %}
+            <!-- Denoise -->
+            {% if methods.1 == 1 %}
+            <section class="mt-5 flex-grow">
+                <h2 class="text-4xl mb-2 font-semibold">Denoise</h2>
+                <div class="p-4 grid grid-cols-4 gap-2">
+                    <div>
+                        <h3 class="text-xl">Filter Noise</h3>
+                        <img src="/static/processed/denoise/filter-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                    <div>
+                        <h3 class="text-xl">Gaussian</h3>
+                        <img src="/static/processed/denoise/gaussian-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                    <div>
+                        <h3 class="text-xl">Median</h3>
+                        <img src="/static/processed/denoise/median-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                    <div>
+                        <h3 class="text-xl">Mean</h3>
+                        <img src="/static/processed/denoise/mean-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            <!-- Sharpening -->
+            {% if methods.2 == 1 %}
+            <section class="mt-5 flex-grow">
+                <h2 class="text-4xl mb-4 font-semibold">Sharpening</h2>
+                <div class="p-4 grid grid-cols-3 gap-2">
+                    <div>
+                        <h3 class="text-xl">Light Sharpen</h3>
+                        <img src="/static/processed/sharpen/light-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                    <div>
+                        <h3 class="text-xl">Standard Sharpen</h3>
+                        <img src="/static/processed/sharpen/standard-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                    <div>
+                        <h3 class="text-xl">Strong Sharpen</h3>
+                        <img src="/static/processed/sharpen/strong-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            <!-- Edge Detection -->
+            {% if methods.3 == 1 %}
+            <section class="mt-5 flex-grow">
+                <h2 class="text-4xl mb-4 font-semibold">Edge Detection</h2>
+                <div>
+                    <h4 class="text-2xl font-semibold">Sobel Filter</h4>
+                    <div class="px-4 grid grid-cols-3 gap-2">
+                        <div>
+                            <h3 class="text-xl">X Direction</h3>
+                            <img src="/static/processed/edge-detect/sobelx-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                        <div>
+                            <h3 class="text-xl">Y Direction</h3>
+                            <img src="/static/processed/edge-detect/sobely-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                        <div>
+                            <h3 class="text-xl">2 Direction Combining</h3>
+                            <img src="/static/processed/edge-detect/sobel-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-2xl font-semibold">Prewitt Filter</h4>
+                    <div class="px-4 grid grid-cols-3 gap-2">
+                        <div>
+                            <h3 class="text-xl">X Direction</h3>
+                            <img src="/static/processed/edge-detect/prewittx-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                        <div>
+                            <h3 class="text-xl">Y Direction</h3>
+                            <img src="/static/processed/edge-detect/prewitty-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                        <div>
+                            <h3 class="text-xl">2 Direction Combining</h3>
+                            <img src="/static/processed/edge-detect/prewitt-{{save_name}}.png" alt="Uploading Error" class="rounded w-full h-auto">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-2xl font-semibold">Canny Filter</h4>
+                    <div class="px-4 flex justify-center">
+                        <img src="/static/processed/edge-detect/canny-{{save_name}}.png" alt="Uploading Error" class="rounded w-1/2 h-auto">
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>
